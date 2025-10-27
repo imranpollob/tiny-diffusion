@@ -31,6 +31,7 @@ tiny-diffusion/
 ├── train.py                 # Training script
 ├── sample.py                # Image generation script
 ├── visualize_diffusion.py   # Visualize forward diffusion process
+├── demo.py                  # Interactive demo script (recommended!)
 ├── utils.py                 # Helper functions
 ├── data/                    # Downloaded datasets (auto-created)
 ├── outputs/                 # Generated images and checkpoints
@@ -42,7 +43,27 @@ tiny-diffusion/
 
 ## 🚀 Usage
 
-### Step 1: Visualize Forward Diffusion
+### Option A: Interactive Demo (Recommended for Beginners)
+
+Run the interactive demo script that guides you through the complete pipeline:
+
+```bash
+python demo.py
+```
+
+This interactive script will:
+- Walk you through each step with explanations
+- Let you skip steps if desired
+- Show you what to expect at each stage
+- Provide guidance on interpreting results
+
+**Perfect for first-time users!** The demo covers all three steps below in an interactive, guided format.
+
+### Option B: Manual Execution
+
+Run each step individually for more control:
+
+#### Step 1: Visualize Forward Diffusion
 
 First, understand how the forward diffusion process works by visualizing how clean images gradually become noise:
 
@@ -57,7 +78,7 @@ This creates a visualization showing images at different noise levels (t=0, 50, 
 - `--num_images`: Number of sample images to show (default: 8)
 - `--save_path`: Where to save the visualization
 
-### Step 2: Train the Model
+#### Step 2: Train the Model
 
 Train a U-Net model to predict and remove noise:
 
@@ -85,7 +106,7 @@ python train.py --dataset mnist --epochs 50 --batch_size 128
 - Model checkpoints are saved periodically
 - Training loss is plotted and saved
 
-### Step 3: Generate Images
+#### Step 3: Generate Images
 
 Generate new images using your trained model:
 
