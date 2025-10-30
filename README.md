@@ -2,6 +2,8 @@
 
 A compact, educational implementation of Denoising Diffusion Probabilistic Models (DDPM). This repo implements the forward (noising) and reverse (denoising) diffusion process and provides scripts to visualize, train, and sample images (MNIST / Fashion-MNIST).
 
+**Detailed explanation [HERE](SUMMARY.md)**
+
 ## Table of contents
 - Quick start
 - Project structure
