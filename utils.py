@@ -3,6 +3,9 @@ Utility functions for the diffusion model project
 """
 
 import torch
+import matplotlib
+
+matplotlib.use("Agg")  # Use non-interactive backend to avoid threading issues
 import matplotlib.pyplot as plt
 import numpy as np
 from torchvision.utils import make_grid
@@ -11,7 +14,7 @@ from torchvision.utils import make_grid
 def save_images(images, path, nrow=8, normalize=True):
     """
     Save a grid of images
-    
+
     Args:
         images: Tensor of images [batch, channels, height, width]
         path: Where to save
@@ -20,44 +23,51 @@ def save_images(images, path, nrow=8, normalize=True):
     """
     if normalize:
         images = (images + 1) / 2  # [-1, 1] -> [0, 1]
-    
+
+    # Clamp to valid range [0, 1] to avoid warnings and display issues
+    images = torch.clamp(images, 0, 1)
+
     grid = make_grid(images, nrow=nrow, padding=2, pad_value=1.0)
     grid_np = grid.permute(1, 2, 0).cpu().numpy()
-    
+
     plt.figure(figsize=(15, 15))
-    plt.imshow(grid_np, cmap='gray' if images.shape[1] == 1 else None)
-    plt.axis('off')
+    plt.imshow(grid_np, cmap="gray" if images.shape[1] == 1 else None)
+    plt.axis("off")
     plt.tight_layout()
-    plt.savefig(path, dpi=150, bbox_inches='tight')
-    plt.close()
+    plt.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close("all")  # Close all figures to free memory
 
 
 def plot_losses(losses, save_path):
     """
     Plot training loss curve
-    
+
     Args:
         losses: List of loss values
         save_path: Where to save the plot
     """
     plt.figure(figsize=(10, 5))
     plt.plot(losses, alpha=0.7)
-    
+
     # Add moving average
     if len(losses) > 100:
         window = 100
-        moving_avg = np.convolve(losses, np.ones(window)/window, mode='valid')
-        plt.plot(range(window-1, len(losses)), moving_avg, 
-                linewidth=2, label=f'Moving Average (window={window})')
+        moving_avg = np.convolve(losses, np.ones(window) / window, mode="valid")
+        plt.plot(
+            range(window - 1, len(losses)),
+            moving_avg,
+            linewidth=2,
+            label=f"Moving Average (window={window})",
+        )
         plt.legend()
-    
-    plt.xlabel('Step')
-    plt.ylabel('Loss')
-    plt.title('Training Loss')
+
+    plt.xlabel("Step")
+    plt.ylabel("Loss")
+    plt.title("Training Loss")
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(save_path, dpi=150, bbox_inches='tight')
-    plt.close()
+    plt.savefig(save_path, dpi=150, bbox_inches="tight")
+    plt.close("all")  # Close all figures to free memory
 
 
 def count_parameters(model):
@@ -68,8 +78,8 @@ def count_parameters(model):
 def get_device():
     """Get the best available device"""
     if torch.cuda.is_available():
-        return torch.device('cuda')
+        return torch.device("cuda")
     elif torch.backends.mps.is_available():
-        return torch.device('mps')
+        return torch.device("mps")
     else:
-        return torch.device('cpu')
+        return torch.device("cpu")

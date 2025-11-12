@@ -16,26 +16,50 @@ class AnimeFaceDataset(Dataset):
     Loads all images from a folder and applies transformations
     """
 
-    def __init__(self, root_dir, transform=None, image_size=64):
+    def __init__(self, root_dir, transform=None, image_size=64, min_size=64):
         """
         Args:
             root_dir: Path to folder containing anime face images
             transform: Optional transforms to apply
             image_size: Size to resize images to (will be square)
+            min_size: Minimum width/height threshold - images smaller than this will be excluded
         """
         self.root_dir = root_dir
         self.transform = transform
         self.image_size = image_size
+        self.min_size = min_size
 
         # Find all image files
-        self.image_files = []
+        all_image_files = []
         for ext in ["*.png", "*.jpg", "*.jpeg", "*.PNG", "*.JPG", "*.JPEG"]:
-            self.image_files.extend(glob.glob(os.path.join(root_dir, ext)))
+            all_image_files.extend(glob.glob(os.path.join(root_dir, ext)))
 
-        if len(self.image_files) == 0:
+        if len(all_image_files) == 0:
             raise ValueError(f"No images found in {root_dir}. Please check the path.")
 
-        print(f"Found {len(self.image_files)} images in {root_dir}")
+        print(f"Found {len(all_image_files)} total images in {root_dir}")
+
+        # Filter images by size
+        print(f"Filtering images with minimum size: {min_size}x{min_size}...")
+        self.image_files = []
+        skipped_count = 0
+
+        for img_path in all_image_files:
+            try:
+                with Image.open(img_path) as img:
+                    width, height = img.size
+                    # Keep images where both width AND height are >= min_size
+                    if width >= min_size and height >= min_size:
+                        self.image_files.append(img_path)
+                    else:
+                        skipped_count += 1
+            except Exception as e:
+                print(f"Warning: Could not read {img_path}: {e}")
+                skipped_count += 1
+
+        print(
+            f"Kept {len(self.image_files)} images (skipped {skipped_count} images below {min_size}x{min_size})"
+        )
 
     def __len__(self):
         return len(self.image_files)
@@ -69,7 +93,7 @@ class AnimeFaceDataset(Dataset):
 
 
 def get_anime_dataloader(
-    data_path, batch_size=32, image_size=64, num_workers=2, shuffle=True
+    data_path, batch_size=32, image_size=64, min_size=64, num_workers=2, shuffle=True
 ):
     """
     Create a DataLoader for anime face images
@@ -78,6 +102,7 @@ def get_anime_dataloader(
         data_path: Path to folder containing images
         batch_size: Number of images per batch
         image_size: Size to resize images to
+        min_size: Minimum width/height - images smaller will be excluded (default: 64)
         num_workers: Number of workers for data loading
         shuffle: Whether to shuffle data
 
@@ -100,9 +125,12 @@ def get_anime_dataloader(
         ]
     )
 
-    # Create dataset
+    # Create dataset with size filtering
     dataset = AnimeFaceDataset(
-        root_dir=data_path, transform=transform, image_size=image_size
+        root_dir=data_path,
+        transform=transform,
+        image_size=image_size,
+        min_size=min_size,
     )
 
     # Create dataloader

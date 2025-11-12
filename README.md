@@ -4,7 +4,7 @@ A compact, educational implementation of Denoising Diffusion Probabilistic Model
 
 **Supports:** MNIST, Fashion-MNIST, and **Anime Faces** (RGB images)
 
-**Detailed explanation:** [SUMMARY.md](SUMMARY.md) | **Anime setup guide:** [ANIME_SETUP.md](ANIME_SETUP.md)
+**Detailed explanation:** [SUMMARY.md](SUMMARY.md)
 
 ## Table of contents
 - Quick start
@@ -44,6 +44,9 @@ python sample.py --checkpoint outputs/model_final.pt --show_intermediate
 ### Option B: Anime Faces (RGB Images) 🎨
 
 **You have 63,565 anime face images ready!**
+
+Download the data first https://www.kaggle.com/datasets/splcher/animefacedataset and put the
+images on `data/anime_faces/` folder
 
 1. Train the model (recommended settings for your hardware):
 

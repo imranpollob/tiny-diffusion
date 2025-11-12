@@ -92,12 +92,13 @@ def train(
     save_interval=5,
     sample_interval=1,
     output_dir="outputs",
+    min_size=64,
 ):
     """
     Main training function
 
     Args:
-        dataset_name: "mnist" or "fashion_mnist"
+        dataset_name: "mnist", "fashion_mnist", or "anime"
         batch_size: Batch size for training
         num_epochs: Number of training epochs
         learning_rate: Learning rate
@@ -105,6 +106,7 @@ def train(
         save_interval: Save checkpoint every N epochs
         sample_interval: Generate samples every N epochs
         output_dir: Directory to save outputs
+        min_size: Minimum image size for anime dataset (filters smaller images)
     """
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
@@ -140,6 +142,7 @@ def train(
             data_path=anime_data_path,
             batch_size=batch_size,
             image_size=image_size,
+            min_size=min_size,  # Filter out images smaller than this threshold
             num_workers=2,
             shuffle=True,
         )
@@ -319,6 +322,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_dir", type=str, default="outputs", help="Output directory"
     )
+    parser.add_argument(
+        "--min_size",
+        type=int,
+        default=64,
+        help="Minimum image size for anime dataset - filters out smaller images (default: 64)",
+    )
 
     args = parser.parse_args()
 
@@ -331,4 +340,5 @@ if __name__ == "__main__":
         save_interval=args.save_interval,
         sample_interval=args.sample_interval,
         output_dir=args.output_dir,
+        min_size=args.min_size,
     )
