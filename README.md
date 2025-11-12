@@ -43,31 +43,33 @@ python sample.py --checkpoint outputs/model_final.pt --show_intermediate
 
 ### Option B: Anime Faces (RGB Images) 🎨
 
-**You have 63,565 anime face images ready!**
+**Prerequisites:**
+1. Download the Anime Face Dataset: https://www.kaggle.com/datasets/splcher/animefacedataset
+2. Extract all images to `data/anime_faces/` folder
 
-Download the data first https://www.kaggle.com/datasets/splcher/animefacedataset and put the
-images on `data/anime_faces/` folder
-
-1. Train the model (recommended settings for your hardware):
+**Train the model:**
 
 ```bash
 # Quick test (20 epochs, ~30-40 minutes)
 python train.py --dataset anime --epochs 20 --batch_size 32
 
 # Recommended quality (50 epochs, ~1.5-2 hours)
-python train.py --dataset anime --epochs 50 --batch_size 32
+python train.py --dataset anime --epochs 50 --batch_size 32 --min_size 64
 
-# Best quality (100 epochs, ~3-4 hours)
-python train.py --dataset anime --epochs 100 --batch_size 32
+# Best quality with filtering (100 epochs, ~3-4 hours)
+python train.py --dataset anime --epochs 100 --batch_size 32 --min_size 80
 ```
 
-2. Generate anime faces:
+**Key parameters:**
+- `--min_size`: Minimum image dimensions (default 64) - filters out smaller/lower quality images
+- `--batch_size`: Use 32-64 for 8GB VRAM, 128+ for 16GB+ VRAM
+- Output images are 64×64 RGB
+
+**Generate anime faces:**
 
 ```bash
 python sample.py --checkpoint outputs/model_final.pt --num_images 64
 ```
-
-**See [ANIME_SETUP.md](ANIME_SETUP.md) for detailed instructions and tips.**
 
 ---
 
@@ -86,13 +88,12 @@ tiny-diffusion/
 ├── utils.py                  # Helper functions
 ├── data/                     # Datasets
 │   ├── MNIST/                # Auto-downloaded MNIST
-│   └── anime_faces/          # Your anime face images (63,565 images) ✅
+│   └── anime_faces/          # Your anime face images (place dataset here)
 ├── outputs/                  # Generated images and checkpoints
 │   ├── samples/              # Training samples
 │   ├── checkpoints/          # Model checkpoints
 │   └── intermediate/         # Denoising process visualization
 ├── SUMMARY.md                # Comprehensive beginner's guide
-└── ANIME_SETUP.md            # Anime faces setup guide
 └── requirements.txt          # Python dependencies
 ```
 
@@ -126,6 +127,7 @@ Useful options:
 - `--dataset`: `mnist`, `fashion_mnist`, or `anime`
 - `--epochs` (default 20)
 - `--batch_size` (default 128; use 32-64 for anime with 8GB VRAM)
+- `--min_size` (default 64; for anime only - filters out images smaller than this size)
 - `--lr` (default 2e-4)
 - `--timesteps` (default 1000)
 - `--output_dir` (default `outputs`)
@@ -193,9 +195,22 @@ python train.py --dataset fashion_mnist --epochs 20 --output_dir outputs/fashion
 
 # Anime faces (64x64 RGB) - requires dataset in data/anime_faces/
 python train.py --dataset anime --epochs 50 --batch_size 32 --output_dir outputs/anime
+
+# Anime with quality filtering (only images >= 80x80)
+python train.py --dataset anime --epochs 50 --batch_size 32 --min_size 80 --output_dir outputs/anime
 ```
 
-3. Model sizes (edit `train.py` / model params): try base_channels=32 / 64 / 128
+3. Image quality filtering (anime dataset only):
+
+```bash
+# Default: keeps images >= 64x64
+python train.py --dataset anime --min_size 64
+
+# Higher quality: keeps images >= 96x96  
+python train.py --dataset anime --min_size 96
+```
+
+4. Model sizes (edit `train.py` / model params): try base_channels=32 / 64 / 128
 
 Tips:
 - 20 epochs shows basic structure; 50+ epochs improves quality
