@@ -95,13 +95,15 @@ def generate(
     # Try to detect image size and channels from checkpoint
     if image_size is None or channels is None:
         # Try to infer from model state dict
-        first_conv_weight = checkpoint["model_state_dict"].get("initial_conv.weight")
-        if first_conv_weight is not None:
+        conv_in_weight = checkpoint["model_state_dict"].get("conv_in.weight")
+        if conv_in_weight is not None:
             if channels is None:
-                channels = first_conv_weight.shape[1]  # Input channels
-            print(
-                f"Auto-detected channels: {channels} ({'RGB' if channels == 3 else 'Grayscale'})"
-            )
+                channels = conv_in_weight.shape[
+                    1
+                ]  # Input channels (dim 1 of conv weight)
+                print(
+                    f"Auto-detected channels: {channels} ({'RGB' if channels == 3 else 'Grayscale'})"
+                )
         else:
             if channels is None:
                 channels = 1  # Default to grayscale
